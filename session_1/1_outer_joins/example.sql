@@ -1,6 +1,5 @@
 -- Enable readable output format
-.mode columns
-.headers on
+.mode box
 
 -- Instructions for students:
 -- 1. Open SQLite in terminal: sqlite3 university.db
@@ -10,4 +9,11 @@
 
 -- write your sql code here
 
+SELECT name, COUNT(student_id) AS TotalStudents
+  FROM Courses LEFT JOIN StudentCourses
+  ON Courses.id = StudentCourses.course_id
+  GROUP BY NAME
+  HAVING TotalStudents < 20;
 
+-- SELECT name, student_id FROM Courses LEFT JOIN StudentCourses
+--   ON Courses.id = StudentCourses.course_id;
