@@ -14,6 +14,7 @@ def menu():
     Prints menu and prompts for choice
     Returns choice (string)
     '''
+    print()
     print("1 - Search for Student")
     print("2 - View Department")
     print("3 - View Courses")
@@ -35,9 +36,9 @@ def search_for_student(db):
     try: # we need to convert the id number to int, and we can use this to decide id or name.
         choice = int(choice)
         query = '''
-                SELECT s.department_id, s.name, d.name
+                SELECT s.id, s.name, d.name
                 FROM Students s JOIN Department d
-                ON s.id=d.id
+                ON s.department_id=d.id
                 WHERE s.id=?
                 '''
     except:
@@ -56,11 +57,9 @@ def search_for_student(db):
 
     # and we ensure that we did find a result.
     if student:
-        print(f"ID: {student[0]}\tName: {student[1]}\tDepartment: {student[2]}")
+        print(f"\nID: {student[0]}\tName: {student[1]}\tDepartment: {student[2]}")
     else:
-        print(f"Student {choice} not found.")
-
-
+        print(f"\nStudent {choice} not found.")
 
 def view_dept(db):
     '''
@@ -68,24 +67,26 @@ def view_dept(db):
     
     :param db: database object to query
     '''
-    query = "SELECT id, name FROM Department;"
+    query = "SELECT id, name FROM Department"
     cursor = db.execute(query)
     # where we know we should have multiple results, we can iterate over the cursor.
+    print()
     for dept in cursor:
         print(f"ID: {dept[0]}\tName: {dept[1]}")
 
 def view_courses(db):
     '''
-   Shows all courses with id, name, semester and department name.
+    Shows all courses with id, name, semester and department name.
     
     :param db: db object to query
     '''
     query = '''
             SELECT c.id, c.name, c.semester, d.name FROM
             Courses c LEFT JOIN Department d
-            ON c.id=d.id;
+            ON c.id=d.id
             '''
     cursor = db.execute(query)
+    print()
     for each in cursor:
         print(f"ID: {each[0]}\tName: {each[1]}\tSemester: {each[2]}\tDept: {each[3]}")
 
@@ -98,13 +99,12 @@ def view_student_by_course(db):
         except:
             choice=-1
     query = '''
-            SELECT s.name from
-            StudentCourses sc 
-            JOIN Students s ON
-            student_id=s.id
-            WHERE sc.course_id=?;
+            SELECT s.name FROM StudentCourses sc
+            JOIN Students s ON student_id=s.id
+            WHERE sc.course_id=?
             '''
     cursor = db.execute(query, (choice,))
+    print()
     for student in cursor:
         print(f"Name: {student[0]}")
 
@@ -113,9 +113,21 @@ def view_student_by_course(db):
 def review_student_numbers(db):
     '''
     Print the number of students registered for each course.    
+
     :param db: Database object to query
     '''
-    pass
+    query = """
+    SELECT name, COUNT(student_id)
+    FROM Courses c LEFT JOIN StudentCourses sc
+    WHERE c.id = sc.course_id
+    GROUP BY c.id
+    """
+
+    cursor = db.execute(query)
+
+    print()
+    for (name, enrolment) in cursor:
+        print(f"{enrolment:3d} {name}")
 
 def main():
 
@@ -141,8 +153,6 @@ def main():
 
             case "Q":
                 exit()
-
-
 
     # Always close your database connection at the end!
     db.close()
