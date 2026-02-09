@@ -119,7 +119,7 @@ def review_student_numbers(db):
     query = """
     SELECT name, COUNT(student_id)
     FROM Courses c LEFT JOIN StudentCourses sc
-    WHERE c.id = sc.course_id
+    ON c.id = sc.course_id
     GROUP BY c.id
     """
 
